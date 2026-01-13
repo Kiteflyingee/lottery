@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useUser } from '../contexts/UserContext';
 import { usePrize } from '../contexts/PrizeContext';
 import { Gift, RotateCw, Minus, Plus, RefreshCw } from 'lucide-react';
@@ -15,14 +15,19 @@ export default function Lottery() {
     const [isExtraDraw, setIsExtraDraw] = useState(false);
     const [winnerIds, setWinnerIds] = useState(new Set());
 
-    const currentPrize = prizes.find(p => p.id === selectedPrizeId);
+    // 也就是按照添加顺序反转：后添加的（通常是低等奖）排在前面
+    // 假设用户按照 Settings 中的提示顺序添加（特大 -> ... -> 三等），
+    // 这里的 reverse() 会让 三等奖 排在第一个，符合 "抽奖顺序从三等奖到特别大奖" 的需求。
+    const sortedPrizes = useMemo(() => [...prizes].reverse(), [prizes]);
+
+    const currentPrize = sortedPrizes.find(p => p.id === selectedPrizeId);
 
     // 初始化选中的奖项
     useEffect(() => {
-        if (prizes.length > 0 && !selectedPrizeId) {
-            setSelectedPrizeId(prizes[0].id);
+        if (sortedPrizes.length > 0 && !selectedPrizeId) {
+            setSelectedPrizeId(sortedPrizes[0].id);
         }
-    }, [prizes, selectedPrizeId]);
+    }, [sortedPrizes, selectedPrizeId]);
 
     // 获取中奖者ID
     useEffect(() => {
@@ -48,10 +53,13 @@ export default function Lottery() {
     // 当奖项改变时重置抽奖数量
     useEffect(() => {
         if (currentPrize) {
-            setDrawCount(Math.min(currentPrize.roundLimit, maxDrawCount) || 1);
-            setIsExtraDraw(false);
+            // 如果不在补抽模式，重置为默认单轮数量
+            // 如果在补抽模式，保持手动设置的数量(由handleExtraDraw初始化为1)
+            if (!isExtraDraw) {
+                setDrawCount(Math.min(currentPrize.roundLimit, maxDrawCount) || 1);
+            }
         }
-    }, [selectedPrizeId, currentPrize?.roundLimit, maxDrawCount]);
+    }, [selectedPrizeId, currentPrize?.roundLimit, maxDrawCount, isExtraDraw, currentPrize]);
 
     // Animation Loop
     useEffect(() => {
@@ -87,6 +95,13 @@ export default function Lottery() {
 
             setRoundWinners(newWinners);
 
+            // 立即在前端标记为已中奖，防止重复
+            setWinnerIds(prev => {
+                const next = new Set(prev);
+                newWinners.forEach(w => next.add(w.id));
+                return next;
+            });
+
             // 存储到数据库
             try {
                 await setDrawHistory({
@@ -117,14 +132,13 @@ export default function Lottery() {
 
     const handleExtraDraw = () => {
         setIsExtraDraw(true);
+        setDrawCount(1); // 补抽默认从1人开始
         setRoundWinners([]);
     };
 
     const handleCancelExtraDraw = () => {
         setIsExtraDraw(false);
-        if (currentPrize) {
-            setDrawCount(Math.min(currentPrize.roundLimit, maxDrawCount) || 1);
-        }
+        // 这里不需要手动重置 drawCount，因为 useEffect 会在 isExtraDraw 变回 false 时处理
     };
 
     const adjustDrawCount = (delta) => {
@@ -161,7 +175,7 @@ export default function Lottery() {
                     }}
                     disabled={isRunning}
                 >
-                    {prizes.map(p => (
+                    {sortedPrizes.map(p => (
                         <option key={p.id} value={p.id}>
                             {p.name} (剩余: {p.remaining})
                         </option>
