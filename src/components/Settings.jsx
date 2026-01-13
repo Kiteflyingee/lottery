@@ -3,7 +3,7 @@ import { usePrize } from '../contexts/PrizeContext';
 import { Plus, Upload, Download, Edit2, Check, X, Trash2, Users, Award, Share2 } from 'lucide-react';
 import { processImage } from '../utils/imageUtils';
 import { exportWinners } from '../utils/api';
-import QRCode from 'qrcode.react';
+import { QRCodeCanvas } from 'qrcode.react';
 
 export default function Settings() {
     const { prizes, addPrize, updatePrize, resetAll, clearPrizes, clearUsers } = usePrize();
@@ -116,7 +116,7 @@ export default function Settings() {
                         </div>
                         <div style={{ textAlign: 'center', padding: '20px 0' }}>
                             <div style={{ background: 'white', padding: '20px', display: 'inline-block', borderRadius: '12px' }}>
-                                <QRCode value={shareUrl} size={250} />
+                                <QRCodeCanvas value={shareUrl} size={250} />
                             </div>
                             <p style={{ marginTop: '20px', color: '#ccc', fontSize: '1.1rem' }}>
                                 请扫描上方二维码参与抽奖
