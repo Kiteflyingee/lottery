@@ -83,6 +83,24 @@ export async function resetAllData() {
     return res.json();
 }
 
+// 清空奖项（保留报名用户）
+export async function resetPrizes() {
+    const res = await fetch(`${API_BASE}/reset-prizes`, {
+        method: 'POST',
+    });
+    if (!res.ok) throw new Error('Failed to reset prizes');
+    return res.json();
+}
+
+// 清空报名（保留奖项配置）
+export async function resetUsers() {
+    const res = await fetch(`${API_BASE}/reset-users`, {
+        method: 'POST',
+    });
+    if (!res.ok) throw new Error('Failed to reset users');
+    return res.json();
+}
+
 export function exportWinners() {
     window.location.href = `${API_BASE}/export`;
 }

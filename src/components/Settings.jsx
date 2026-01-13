@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { usePrize } from '../contexts/PrizeContext';
-import { Plus, Upload, Download, Edit2, Check, X } from 'lucide-react';
+import { Plus, Upload, Download, Edit2, Check, X, Trash2, Users, Award } from 'lucide-react';
 import { processImage } from '../utils/imageUtils';
 import { exportWinners } from '../utils/api';
 
 export default function Settings() {
-    const { prizes, addPrize, updatePrize, resetPrizes } = usePrize();
+    const { prizes, addPrize, updatePrize, resetAll, clearPrizes, clearUsers } = usePrize();
 
     const [newPrize, setNewPrize] = useState({
         name: '',
@@ -31,12 +31,37 @@ export default function Settings() {
         }
     };
 
-    const handleReset = async () => {
+    // 重置所有数据
+    const handleResetAll = async () => {
         if (confirm('确定要重置所有数据吗？这将删除所有奖项、报名和抽奖记录！')) {
             try {
-                await resetPrizes();
+                await resetAll();
             } catch (err) {
                 alert('重置失败');
+                console.error(err);
+            }
+        }
+    };
+
+    // 清空奖项
+    const handleClearPrizes = async () => {
+        if (confirm('确定要清空奖项吗？这将删除所有奖项配置和抽奖记录，但保留报名用户！')) {
+            try {
+                await clearPrizes();
+            } catch (err) {
+                alert('清空奖项失败');
+                console.error(err);
+            }
+        }
+    };
+
+    // 清空报名
+    const handleClearUsers = async () => {
+        if (confirm('确定要清空报名吗？这将删除所有报名用户和抽奖记录，但保留奖项配置！')) {
+            try {
+                await clearUsers();
+            } catch (err) {
+                alert('清空报名失败');
                 console.error(err);
             }
         }
@@ -79,12 +104,18 @@ export default function Settings() {
             <div className="card settings-card">
                 <div className="card-header">
                     <h1 className="title">⚙️ 抽奖设置</h1>
-                    <div style={{ display: 'flex', gap: 10 }}>
+                    <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                         <button onClick={exportWinners} className="btn btn-sm" style={{ background: '#2563eb', border: 'none' }}>
-                            <Download size={14} style={{ marginRight: 4 }} /> 导出名单
+                            <Download size={14} /> 导出名单
                         </button>
-                        <button onClick={handleReset} className="btn btn-danger btn-sm">
-                            重置数据
+                        <button onClick={handleClearPrizes} className="btn btn-sm" style={{ background: '#f59e0b', border: 'none' }}>
+                            <Award size={14} /> 清空奖项
+                        </button>
+                        <button onClick={handleClearUsers} className="btn btn-sm" style={{ background: '#8b5cf6', border: 'none' }}>
+                            <Users size={14} /> 清空报名
+                        </button>
+                        <button onClick={handleResetAll} className="btn btn-danger btn-sm">
+                            <Trash2 size={14} /> 全部重置
                         </button>
                     </div>
                 </div>

@@ -165,6 +165,28 @@ app.post('/api/reset', (req, res) => {
   res.json({ success: true });
 });
 
+// 清空奖项（重置奖项和抽奖历史，保留报名用户）
+app.post('/api/reset-prizes', (req, res) => {
+  db.exec(`
+    DELETE FROM winners;
+    DELETE FROM draw_history;
+    DELETE FROM prizes;
+  `);
+  res.json({ success: true });
+});
+
+// 清空报名（删除所有用户和抽奖记录，保留奖项配置）
+app.post('/api/reset-users', (req, res) => {
+  db.exec(`
+    DELETE FROM winners;
+    DELETE FROM draw_history;
+    DELETE FROM users;
+  `);
+  // 重置奖项剩余数量
+  db.exec(`UPDATE prizes SET remaining = count`);
+  res.json({ success: true });
+});
+
 // ==================== Draw History API ====================
 
 // 获取抽奖历史
