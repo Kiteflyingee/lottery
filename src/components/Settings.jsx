@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { usePrize } from '../contexts/PrizeContext';
+import { useUser } from '../contexts/UserContext';
 import { Plus, Upload, Download, Edit2, Check, X, Trash2, Users, Award, Share2 } from 'lucide-react';
 import { processImage } from '../utils/imageUtils';
 import { exportWinners } from '../utils/api';
 import { QRCodeCanvas } from 'qrcode.react';
 
 export default function Settings() {
-    const { prizes, addPrize, updatePrize, resetAll, clearPrizes, clearUsers } = usePrize();
+    const { prizes, addPrize, updatePrize, resetAll, clearPrizes, clearUsers, drawHistory } = usePrize();
+    const { users } = useUser();
 
     const [newPrize, setNewPrize] = useState({
         name: '',
@@ -45,8 +47,22 @@ export default function Settings() {
         }
     };
 
+
+    // 导出名单
+    const handleExport = () => {
+        if (!drawHistory || drawHistory.length === 0) {
+            alert('暂无中奖记录，无法导出');
+            return;
+        }
+        exportWinners();
+    };
+
     // 清空奖项
     const handleClearPrizes = async () => {
+        if (prizes.length === 0) {
+            alert('暂无奖项可清空');
+            return;
+        }
         if (confirm('确定要清空奖项吗？这将删除所有奖项配置和抽奖记录，但保留报名用户！')) {
             try {
                 await clearPrizes();
@@ -59,6 +75,10 @@ export default function Settings() {
 
     // 清空报名
     const handleClearUsers = async () => {
+        if (users.length === 0) {
+            alert('暂无报名用户可清空');
+            return;
+        }
         if (confirm('确定要清空报名吗？这将删除所有报名用户和抽奖记录，但保留奖项配置！')) {
             try {
                 await clearUsers();
@@ -139,7 +159,7 @@ export default function Settings() {
                         <button onClick={() => setShowShare(true)} className="btn btn-sm" style={{ background: '#ec4899', border: 'none' }}>
                             <Share2 size={14} /> 分享抽奖
                         </button>
-                        <button onClick={exportWinners} className="btn btn-sm" style={{ background: '#2563eb', border: 'none' }}>
+                        <button onClick={handleExport} className="btn btn-sm" style={{ background: '#2563eb', border: 'none' }}>
                             <Download size={14} /> 导出名单
                         </button>
                         <button onClick={handleClearPrizes} className="btn btn-sm" style={{ background: '#f59e0b', border: 'none' }}>
