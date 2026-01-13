@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { usePrize } from '../contexts/PrizeContext';
-import { Plus, Upload, Download, Edit2, Check, X, Trash2, Users, Award } from 'lucide-react';
+import { Plus, Upload, Download, Edit2, Check, X, Trash2, Users, Award, Share2 } from 'lucide-react';
 import { processImage } from '../utils/imageUtils';
 import { exportWinners } from '../utils/api';
+import QRCode from 'qrcode.react';
 
 export default function Settings() {
     const { prizes, addPrize, updatePrize, resetAll, clearPrizes, clearUsers } = usePrize();
@@ -16,6 +17,7 @@ export default function Settings() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [editingId, setEditingId] = useState(null);
     const [editForm, setEditForm] = useState({});
+    const [showShare, setShowShare] = useState(false);
 
     const handleAdd = async () => {
         if (!newPrize.name) return;
@@ -99,12 +101,44 @@ export default function Settings() {
     const categories = ['特别大奖', '特等奖', '一等奖', '二等奖', '三等奖'];
     const nextCategory = categories[prizes.length] || '自定义奖项';
 
+    // 获取报名链接
+    const shareUrl = window.location.origin;
+
     return (
         <div className="settings-container">
+            {/* 分享弹窗 */}
+            {showShare && (
+                <div className="modal-overlay" onClick={() => setShowShare(false)}>
+                    <div className="modal-content" onClick={e => e.stopPropagation()}>
+                        <div className="modal-header">
+                            <h2>📱 扫码报名</h2>
+                            <button onClick={() => setShowShare(false)} className="close-btn"><X /></button>
+                        </div>
+                        <div style={{ textAlign: 'center', padding: '20px 0' }}>
+                            <div style={{ background: 'white', padding: '20px', display: 'inline-block', borderRadius: '12px' }}>
+                                <QRCode value={shareUrl} size={250} />
+                            </div>
+                            <p style={{ marginTop: '20px', color: '#ccc', fontSize: '1.1rem' }}>
+                                请扫描上方二维码参与抽奖
+                            </p>
+                            <div className="share-link-box" onClick={() => {
+                                navigator.clipboard.writeText(shareUrl);
+                                alert('链接已复制');
+                            }}>
+                                {shareUrl}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             <div className="card settings-card">
                 <div className="card-header">
                     <h1 className="title">⚙️ 抽奖设置</h1>
                     <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                        <button onClick={() => setShowShare(true)} className="btn btn-sm" style={{ background: '#ec4899', border: 'none' }}>
+                            <Share2 size={14} /> 分享抽奖
+                        </button>
                         <button onClick={exportWinners} className="btn btn-sm" style={{ background: '#2563eb', border: 'none' }}>
                             <Download size={14} /> 导出名单
                         </button>
