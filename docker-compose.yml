@@ -1,10 +1,15 @@
 services:
   lottery-app:
-    build: .
+    build:
+       context: .
+       dockerfile: Dockerfile
+       args:
+          - HTTP_PROXY=http://127.0.0.1:7890
+          - HTTPS_PROXY=http://127.0.0.1:7890
     ports:
-      - "3000:3000"   # 统一入口，Nginx 反向代理
+      - "3000:3000"  
     volumes:
-      - lottery-data:/app/server  # 持久化数据库
+      - lottery-data:/app/data  # 持久化数据库
     restart: unless-stopped
     environment:
       - NODE_ENV=production

@@ -5,14 +5,24 @@ import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import XLSX from 'xlsx';
 
+import fs from 'fs';
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const app = express();
 const PORT = 3001;
 
-// 初始化数据库
-const db = new Database(join(__dirname, 'lottery.db'));
+// 初始化数据库 - 生产环境使用 /app/data，开发环境使用 server 目录
+const isProduction = process.env.NODE_ENV === 'production';
+const dbDir = isProduction ? '/app/data' : __dirname;
+
+// 确保数据库目录存在
+if (!fs.existsSync(dbDir)) {
+  fs.mkdirSync(dbDir, { recursive: true });
+}
+
+const db = new Database(join(dbDir, 'lottery.db'));
 
 // 创建表
 db.exec(`
