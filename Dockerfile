@@ -33,17 +33,11 @@ COPY --from=frontend-builder /app/dist ./dist
 # 复制 serve 配置文件
 COPY serve.json ./dist/serve.json
 
-# 安装轻量级静态文件服务
-RUN npm install -g serve
-
-# 创建启动脚本
-RUN echo '#!/bin/sh' > /app/start.sh && \
-    echo 'node /app/server/index.js &' >> /app/start.sh && \
-    echo 'serve /app/dist -l 3000 -c serve.json' >> /app/start.sh && \
-    chmod +x /app/start.sh
+# 安装轻量级静态文件服务和进程管理
+RUN npm install -g serve concurrently
 
 # 暴露端口
 EXPOSE 3000 3001
 
-# 启动应用
-CMD ["/bin/sh", "/app/start.sh"]
+# 使用 concurrently 同时启动前后端
+CMD ["npx", "concurrently", "--kill-others", "node /app/server/index.js", "serve /app/dist -l 3000 -c /app/dist/serve.json"]
