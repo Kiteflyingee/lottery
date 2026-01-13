@@ -1,6 +1,6 @@
-// 在生产环境中使用相对路径，开发环境使用 localhost:3001
+// 生产环境使用相对路径（Nginx 代理），开发环境使用 localhost:3001
 const API_BASE = import.meta.env.PROD
-    ? `${window.location.protocol}//${window.location.hostname}:3001/api`
+    ? '/api'
     : 'http://localhost:3001/api';
 
 // ==================== Users API ====================
