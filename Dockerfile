@@ -2,8 +2,13 @@
 FROM node:20-alpine AS frontend-builder
 
 WORKDIR /app
+
+# 配置国内 npm 镜像源
+RUN npm config set registry https://registry.npmmirror.com
+
 COPY package*.json ./
 RUN npm ci
+
 COPY . .
 RUN npm run build
 
@@ -11,6 +16,9 @@ RUN npm run build
 FROM node:20-alpine AS production
 
 WORKDIR /app
+
+# 配置国内 npm 镜像源
+RUN npm config set registry https://registry.npmmirror.com
 
 # 只复制后端需要的文件
 COPY package*.json ./
