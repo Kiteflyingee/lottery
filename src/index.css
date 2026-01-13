@@ -381,10 +381,31 @@ body {
 .prize-item {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   background: rgba(255, 255, 255, 0.05);
   padding: 12px;
   margin-bottom: 8px;
   border-radius: 12px;
+}
+
+.prize-info {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.prize-edit-form {
+  width: 100%;
+}
+
+.prize-edit-form .row {
+  display: flex;
+  gap: 8px;
+}
+
+.prize-edit-form .input {
+  padding: 8px 12px;
+  font-size: 0.9rem;
 }
 
 .badge {

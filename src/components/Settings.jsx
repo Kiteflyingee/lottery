@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { usePrize } from '../contexts/PrizeContext';
-import { Plus, Upload, Download } from 'lucide-react';
+import { Plus, Upload, Download, Edit2, Check, X } from 'lucide-react';
 import { processImage } from '../utils/imageUtils';
 import { exportWinners } from '../utils/api';
 
 export default function Settings() {
-    const { prizes, addPrize, resetPrizes } = usePrize();
+    const { prizes, addPrize, updatePrize, resetPrizes } = usePrize();
 
     const [newPrize, setNewPrize] = useState({
         name: '',
@@ -14,6 +14,8 @@ export default function Settings() {
         image: ''
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [editingId, setEditingId] = useState(null);
+    const [editForm, setEditForm] = useState({});
 
     const handleAdd = async () => {
         if (!newPrize.name) return;
@@ -40,6 +42,35 @@ export default function Settings() {
         }
     };
 
+    // 开始编辑
+    const startEdit = (prize) => {
+        setEditingId(prize.id);
+        setEditForm({
+            name: prize.name,
+            count: prize.count,
+            roundLimit: prize.roundLimit,
+            image: prize.image || ''
+        });
+    };
+
+    // 取消编辑
+    const cancelEdit = () => {
+        setEditingId(null);
+        setEditForm({});
+    };
+
+    // 保存编辑
+    const saveEdit = async (id) => {
+        try {
+            await updatePrize(id, editForm);
+            setEditingId(null);
+            setEditForm({});
+        } catch (err) {
+            alert('保存失败');
+            console.error(err);
+        }
+    };
+
     const categories = ['特别大奖', '特等奖', '一等奖', '二等奖', '三等奖'];
     const nextCategory = categories[prizes.length] || '自定义奖项';
 
@@ -61,14 +92,82 @@ export default function Settings() {
                 <div className="prize-list">
                     {prizes.map((prize, index) => (
                         <div key={prize.id} className="prize-item">
-                            <div className="prize-info">
-                                <span className="badge">{index + 1}</span>
-                                <h3>{prize.name}</h3>
-                                <div className="prize-meta">
-                                    <span>数量: {prize.count}</span>
-                                    <span>单轮: {prize.roundLimit}</span>
+                            {editingId === prize.id ? (
+                                // 编辑模式
+                                <div className="prize-edit-form">
+                                    <div className="row" style={{ gap: 8, marginBottom: 8 }}>
+                                        <input
+                                            type="text"
+                                            className="input"
+                                            value={editForm.name}
+                                            onChange={e => setEditForm({ ...editForm, name: e.target.value })}
+                                            placeholder="奖项名称"
+                                            style={{ flex: 2 }}
+                                        />
+                                        <input
+                                            type="number"
+                                            className="input"
+                                            value={editForm.count}
+                                            onChange={e => setEditForm({ ...editForm, count: parseInt(e.target.value) || 0 })}
+                                            placeholder="数量"
+                                            min="1"
+                                            style={{ flex: 1 }}
+                                        />
+                                        <input
+                                            type="number"
+                                            className="input"
+                                            value={editForm.roundLimit}
+                                            onChange={e => setEditForm({ ...editForm, roundLimit: parseInt(e.target.value) || 0 })}
+                                            placeholder="单轮"
+                                            min="1"
+                                            style={{ flex: 1 }}
+                                        />
+                                    </div>
+                                    <div style={{ display: 'flex', gap: 8 }}>
+                                        <button
+                                            className="btn btn-sm"
+                                            style={{ background: '#22c55e', border: 'none' }}
+                                            onClick={() => saveEdit(prize.id)}
+                                        >
+                                            <Check size={14} /> 保存
+                                        </button>
+                                        <button
+                                            className="btn btn-sm"
+                                            style={{ background: '#666', border: 'none' }}
+                                            onClick={cancelEdit}
+                                        >
+                                            <X size={14} /> 取消
+                                        </button>
+                                    </div>
                                 </div>
-                            </div>
+                            ) : (
+                                // 显示模式
+                                <>
+                                    <div className="prize-info">
+                                        <span className="badge">{index + 1}</span>
+                                        {prize.image && (
+                                            <img
+                                                src={prize.image}
+                                                alt=""
+                                                style={{ width: 32, height: 32, borderRadius: 6, objectFit: 'cover', marginRight: 8 }}
+                                            />
+                                        )}
+                                        <h3>{prize.name}</h3>
+                                        <div className="prize-meta">
+                                            <span>数量: {prize.count}</span>
+                                            <span>剩余: {prize.remaining}</span>
+                                            <span>单轮: {prize.roundLimit}</span>
+                                        </div>
+                                    </div>
+                                    <button
+                                        className="btn btn-sm"
+                                        style={{ background: '#444', border: '1px solid #666' }}
+                                        onClick={() => startEdit(prize)}
+                                    >
+                                        <Edit2 size={14} />
+                                    </button>
+                                </>
+                            )}
                         </div>
                     ))}
                 </div>
