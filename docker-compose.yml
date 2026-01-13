@@ -1,0 +1,14 @@
+services:
+  lottery-app:
+    build: .
+    ports:
+      - "3000:3000"   # 前端
+      - "3001:3001"   # 后端 API
+    volumes:
+      - lottery-data:/app/server  # 持久化数据库
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+
+volumes:
+  lottery-data:

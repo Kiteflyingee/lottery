@@ -128,8 +128,46 @@ lottery-app/
 
 1. **必须同时运行前端和后端**才能正常使用
 2. **数据库文件**会在 `server/` 目录下自动生成
-3. **CSV 导出**包含 BOM 头，Excel 打开中文不会乱码
+3. **Excel 导出**生成标准 .xlsx 格式，兼容所有 Excel 版本
 4. **报名限制**基于 localStorage，清除浏览器数据可重新报名
+
+## 🚀 生产部署
+
+### Docker 部署（推荐）
+
+确保服务器已安装 Docker 和 Docker Compose，然后执行：
+
+```bash
+# 构建并启动
+docker-compose up -d --build
+
+# 查看日志
+docker-compose logs -f
+
+# 停止服务
+docker-compose down
+```
+
+部署后访问：
+- **报名页面**：`http://服务器IP:3000/`
+- **管理后台**：`http://服务器IP:3000/admin.html`
+
+### 手动部署
+
+```bash
+# 1. 安装依赖
+npm install
+
+# 2. 构建前端
+npm run build
+
+# 3. 启动后端（推荐使用 PM2）
+npm install -g pm2
+pm2 start server/index.js --name lottery-api
+
+# 4. 使用 Nginx 代理前端静态文件
+# 将 dist 目录配置为 Nginx 的根目录
+```
 
 ## 📄 开源协议
 

@@ -1,4 +1,7 @@
-const API_BASE = 'http://localhost:3001/api';
+// 在生产环境中使用相对路径，开发环境使用 localhost:3001
+const API_BASE = import.meta.env.PROD
+    ? `${window.location.protocol}//${window.location.hostname}:3001/api`
+    : 'http://localhost:3001/api';
 
 // ==================== Users API ====================
 
