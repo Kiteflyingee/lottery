@@ -1,0 +1,35 @@
+{
+    "rewrites": [
+        {
+            "source": "/admin",
+            "destination": "/admin.html"
+        },
+        {
+            "source": "/admin.html",
+            "destination": "/admin.html"
+        },
+        {
+            "source": "/registration",
+            "destination": "/registration.html"
+        },
+        {
+            "source": "/registration.html",
+            "destination": "/registration.html"
+        },
+        {
+            "source": "/**",
+            "destination": "/index.html"
+        }
+    ],
+    "headers": [
+        {
+            "source": "**/*",
+            "headers": [
+                {
+                    "key": "Cache-Control",
+                    "value": "no-cache"
+                }
+            ]
+        }
+    ]
+}
