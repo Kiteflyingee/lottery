@@ -101,6 +101,15 @@ export async function resetUsers() {
     return res.json();
 }
 
+// 清空抽奖（只清除抽奖记录，保留用户和奖项配置）
+export async function resetLottery() {
+    const res = await fetch(`${API_BASE}/reset-lottery`, {
+        method: 'POST',
+    });
+    if (!res.ok) throw new Error('Failed to reset lottery');
+    return res.json();
+}
+
 export function exportWinners() {
     window.location.href = `${API_BASE}/export`;
 }

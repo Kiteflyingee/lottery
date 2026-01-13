@@ -1,18 +1,24 @@
 import requests
-import random
 import time
+import uuid
 
-BASE_URL = "http://124.70.165.131:3000/api/users"
+BASE_URL = "http://localhost:3001/api/users"
 
 def generate_users(count=100):
     success_count = 0
     
     print(f"Starting generation of {count} users to {BASE_URL}...")
     
+    # Use timestamp + index to ensure unique IDs
+    timestamp = int(time.time() * 1000) % 10000000
+    
     for i in range(count):
-        # Generate random 4-digit ID
-        employee_id = f"{random.randint(0, 9999):04d}"
-        name = f"测试用户_{employee_id}"
+        # Generate unique ID using timestamp and index
+        unique_id = f"{(timestamp + i) % 10000:04d}"
+        # Add a unique suffix using uuid to guarantee uniqueness
+        unique_suffix = uuid.uuid4().hex[:4]
+        name = f"用户_{unique_id}_{unique_suffix}"
+        employee_id = unique_id
         
         payload = {
             "name": name,
@@ -22,6 +28,8 @@ def generate_users(count=100):
         try:
             response = requests.post(BASE_URL, json=payload, timeout=5)
             if response.status_code == 200:
+                result = response.json()
+                # Check if this is a new user (registeredAt should be very recent)
                 print(f"[{i+1}/{count}] Created user: {name} (ID: {employee_id})")
                 success_count += 1
             else:

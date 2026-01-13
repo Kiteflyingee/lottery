@@ -4,7 +4,7 @@ import { usePrize } from '../contexts/PrizeContext';
 import { Gift, RotateCw, Minus, Plus, RefreshCw } from 'lucide-react';
 
 export default function Lottery() {
-    const { users, refreshUsers } = useUser();
+    const { users } = useUser();
     const { prizes, updatePrize, setDrawHistory, refreshData } = usePrize();
 
     const [selectedPrizeId, setSelectedPrizeId] = useState('');
@@ -121,7 +121,8 @@ export default function Lottery() {
             setIsExtraDraw(false);
 
         } else {
-            if (currentPrize.remaining <= 0) {
+            // 补抽模式不检查剩余数量，普通模式才检查
+            if (!isExtraDraw && currentPrize.remaining <= 0) {
                 alert('该奖项已抽完');
                 return;
             }
@@ -148,11 +149,9 @@ export default function Lottery() {
         }
     };
 
-    // 手动刷新报名数据
-    const handleRefresh = async () => {
-        await refreshUsers();
-        await refreshData();
-    };
+
+    // 手动刷新报名数据已被移除，进入抽奖页面后即锁定名单
+
 
     return (
         <div className="lottery-container">
@@ -182,16 +181,9 @@ export default function Lottery() {
                     ))}
                 </select>
 
-                {/* 刷新按钮 */}
-                <button
-                    className="btn btn-refresh"
-                    onClick={handleRefresh}
-                    title="刷新报名数据"
-                    disabled={isRunning}
-                >
-                    <RefreshCw size={18} />
-                    刷新 ({eligibleUsers.length}人)
-                </button>
+                <span style={{ color: 'rgba(255,255,255,0.6)', marginLeft: '12px' }}>
+                    (已锁定 {eligibleUsers.length} 人参与)
+                </span>
             </div>
 
             <div className="lottery-stage">
@@ -218,7 +210,7 @@ export default function Lottery() {
                         <div className="idle-state">
                             <Gift size={64} />
                             <p>准备抽奖</p>
-                            <p className="text-sm opacity-70">当前奖池: {eligibleUsers.length} 人</p>
+                            <p className="text-sm opacity-70">本轮奖池: {eligibleUsers.length} 人</p>
                         </div>
                     )}
                 </div>
@@ -261,7 +253,7 @@ export default function Lottery() {
                         {isRunning ? '停止 (STOP)' : (isExtraDraw ? `补抽 ${drawCount} 人` : '开始抽奖 (START)')}
                     </button>
 
-                    {!isRunning && !isExtraDraw && currentPrize?.remaining > 0 && eligibleUsers.length > 0 && (
+                    {!isRunning && !isExtraDraw && eligibleUsers.length > 0 && roundWinners.length > 0 && (
                         <button
                             className="btn btn-lg btn-extra"
                             onClick={handleExtraDraw}

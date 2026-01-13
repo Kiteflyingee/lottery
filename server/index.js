@@ -187,6 +187,18 @@ app.post('/api/reset-users', (req, res) => {
   res.json({ success: true });
 });
 
+// 清空抽奖（清除抽奖记录和用户，恢复奖项数量，需要重新注册）
+app.post('/api/reset-lottery', (req, res) => {
+  db.exec(`
+    DELETE FROM winners;
+    DELETE FROM draw_history;
+    DELETE FROM users;
+  `);
+  // 重置奖项剩余数量
+  db.exec(`UPDATE prizes SET remaining = count`);
+  res.json({ success: true });
+});
+
 // ==================== Draw History API ====================
 
 // 获取抽奖历史

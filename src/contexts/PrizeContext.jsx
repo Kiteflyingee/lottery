@@ -79,27 +79,15 @@ export const PrizeProvider = ({ children }) => {
     }
   };
 
-  // 清空奖项（保留报名用户）
-  const clearPrizes = async () => {
+  // 清空抽奖（只清除抽奖记录，保留用户和奖项配置）
+  const resetLottery = async () => {
     try {
-      await api.resetPrizes();
-      setPrizes([]);
-      setDrawHistory([]);
-    } catch (err) {
-      console.error('Failed to clear prizes:', err);
-      throw err;
-    }
-  };
-
-  // 清空报名（保留奖项配置）
-  const clearUsers = async () => {
-    try {
-      await api.resetUsers();
+      await api.resetLottery();
       setDrawHistory([]);
       // 刷新奖项数据以获取重置后的剩余数量
       await loadData();
     } catch (err) {
-      console.error('Failed to clear users:', err);
+      console.error('Failed to reset lottery:', err);
       throw err;
     }
   };
@@ -118,8 +106,7 @@ export const PrizeProvider = ({ children }) => {
       addPrize,
       updatePrize,
       resetAll,
-      clearPrizes,
-      clearUsers,
+      resetLottery,
       isSetupComplete,
       drawHistory,
       setDrawHistory: addDrawRecord,

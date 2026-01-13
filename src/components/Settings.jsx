@@ -1,14 +1,14 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { usePrize } from '../contexts/PrizeContext';
 import { useUser } from '../contexts/UserContext';
-import { Plus, Upload, Download, Edit2, Check, X, Trash2, Users, Award, Share2 } from 'lucide-react';
+import { Plus, Upload, Download, Edit2, Check, X, Trash2, Users, Award, Share2, RefreshCw } from 'lucide-react';
 import { processImage } from '../utils/imageUtils';
 import { exportWinners } from '../utils/api';
 import { QRCodeCanvas } from 'qrcode.react';
 
 export default function Settings() {
-    const { prizes, addPrize, updatePrize, resetAll, clearPrizes, clearUsers, drawHistory } = usePrize();
-    const { users } = useUser();
+    const { prizes, addPrize, updatePrize, resetAll, resetLottery, drawHistory } = usePrize();
+    const { users, refreshUsers } = useUser();
 
     const [newPrize, setNewPrize] = useState({
         name: '',
@@ -20,6 +20,22 @@ export default function Settings() {
     const [editingId, setEditingId] = useState(null);
     const [editForm, setEditForm] = useState({});
     const [showShare, setShowShare] = useState(false);
+
+    // 打开分享弹窗时自动刷新报名人数
+    useEffect(() => {
+        let interval;
+        if (showShare) {
+            // 立即刷新一次
+            refreshUsers();
+            // 每2秒自动刷新一次
+            interval = setInterval(() => {
+                refreshUsers();
+            }, 2000);
+        }
+        return () => {
+            if (interval) clearInterval(interval);
+        };
+    }, [showShare, refreshUsers]);
 
     const handleAdd = async () => {
         if (!newPrize.name) return;
@@ -57,33 +73,13 @@ export default function Settings() {
         exportWinners();
     };
 
-    // 清空奖项
-    const handleClearPrizes = async () => {
-        if (prizes.length === 0) {
-            alert('暂无奖项可清空');
-            return;
-        }
-        if (confirm('确定要清空奖项吗？这将删除所有奖项配置和抽奖记录，但保留报名用户！')) {
+    // 清空抽奖（重置抽奖，删除用户，需要重新注册）
+    const handleResetLottery = async () => {
+        if (confirm('确定要清空抽奖吗？这将清除所有抽奖记录和报名用户，奖项剩余数量将恢复为初始值，所有人需要重新扫码注册！')) {
             try {
-                await clearPrizes();
+                await resetLottery();
             } catch (err) {
-                alert('清空奖项失败');
-                console.error(err);
-            }
-        }
-    };
-
-    // 清空报名
-    const handleClearUsers = async () => {
-        if (users.length === 0) {
-            alert('暂无报名用户可清空');
-            return;
-        }
-        if (confirm('确定要清空报名吗？这将删除所有报名用户和抽奖记录，但保留奖项配置！')) {
-            try {
-                await clearUsers();
-            } catch (err) {
-                alert('清空报名失败');
+                alert('清空抽奖失败');
                 console.error(err);
             }
         }
@@ -141,6 +137,19 @@ export default function Settings() {
                             <p style={{ marginTop: '20px', color: '#ccc', fontSize: '1.1rem' }}>
                                 请扫描上方二维码参与抽奖
                             </p>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
+                                <p style={{ marginTop: '10px', fontSize: '1.2rem', color: '#4ade80', fontWeight: 'bold', margin: 0 }}>
+                                    当前已报名: {users.length} 人
+                                </p>
+                                <button
+                                    onClick={() => refreshUsers()}
+                                    className="btn btn-sm"
+                                    style={{ background: 'rgba(255,255,255,0.1)', border: 'none', padding: '4px 8px', borderRadius: '50%' }}
+                                    title="刷新人数"
+                                >
+                                    <RefreshCw size={16} />
+                                </button>
+                            </div>
                             <div className="share-link-box" onClick={() => {
                                 navigator.clipboard.writeText(shareUrl);
                                 alert('链接已复制');
@@ -162,11 +171,8 @@ export default function Settings() {
                         <button onClick={handleExport} className="btn btn-sm" style={{ background: '#2563eb', border: 'none' }}>
                             <Download size={14} /> 导出名单
                         </button>
-                        <button onClick={handleClearPrizes} className="btn btn-sm" style={{ background: '#f59e0b', border: 'none' }}>
-                            <Award size={14} /> 清空奖项
-                        </button>
-                        <button onClick={handleClearUsers} className="btn btn-sm" style={{ background: '#8b5cf6', border: 'none' }}>
-                            <Users size={14} /> 清空报名
+                        <button onClick={handleResetLottery} className="btn btn-sm" style={{ background: '#f59e0b', border: 'none' }}>
+                            <Award size={14} /> 清空抽奖
                         </button>
                         <button onClick={handleResetAll} className="btn btn-danger btn-sm">
                             <Trash2 size={14} /> 全部重置
