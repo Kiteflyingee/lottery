@@ -645,3 +645,168 @@ body {
   background: rgba(255, 255, 255, 0.25);
   transform: scale(1.1);
 }
+
+/* 登出按钮样式 */
+.fab-logout {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.fab-logout:hover {
+  background: rgba(239, 68, 68, 0.4);
+}
+
+/* =====================================================
+   Admin Authentication Styles
+   ===================================================== */
+
+.admin-auth-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
+  background: 
+    radial-gradient(circle at top right, hsla(var(--primary), 0.15), transparent 50%),
+    radial-gradient(circle at bottom left, hsla(var(--secondary), 0.15), transparent 50%),
+    radial-gradient(circle at center, hsla(240, 30%, 15%, 1), hsl(var(--bg-dark)));
+  animation: authBgPulse 8s ease-in-out infinite;
+}
+
+@keyframes authBgPulse {
+  0%, 100% {
+    background-size: 100% 100%;
+  }
+  50% {
+    background-size: 120% 120%;
+  }
+}
+
+.admin-auth-card {
+  background: linear-gradient(145deg, 
+    hsla(var(--bg-card), 0.95), 
+    hsla(var(--bg-dark), 0.9));
+  padding: 48px 40px;
+  border-radius: 24px;
+  box-shadow: 
+    0 25px 80px -20px rgba(0, 0, 0, 0.6),
+    0 0 0 1px rgba(255, 255, 255, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  width: 100%;
+  max-width: 420px;
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  text-align: center;
+  transition: transform 0.3s ease;
+}
+
+.admin-auth-card:hover {
+  transform: translateY(-4px);
+}
+
+.admin-auth-card.shake {
+  animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-8px); }
+  20%, 40%, 60%, 80% { transform: translateX(8px); }
+}
+
+.auth-icon-wrapper {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 24px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary)));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  box-shadow: 0 8px 32px hsla(var(--primary), 0.4);
+  animation: iconFloat 3s ease-in-out infinite;
+}
+
+@keyframes iconFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+.auth-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+  background: linear-gradient(to right, #fff, #ccc);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.auth-subtitle {
+  color: hsl(var(--text-muted));
+  margin-bottom: 32px;
+  font-size: 0.95rem;
+}
+
+.admin-auth-card .form-group {
+  text-align: left;
+  margin-bottom: 20px;
+}
+
+.admin-auth-card .form-group label {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+  font-size: 0.9rem;
+  color: hsl(var(--text-muted));
+}
+
+.password-input-wrapper {
+  position: relative;
+}
+
+.password-input-wrapper .input {
+  padding-right: 48px;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  color: hsl(var(--text-muted));
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s;
+}
+
+.password-toggle:hover {
+  color: white;
+}
+
+.btn-auth {
+  margin-top: 8px;
+  padding: 14px 24px;
+  font-size: 1rem;
+}
+
+.admin-auth-card .alert {
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.auth-hint {
+  margin-top: 24px;
+  font-size: 0.8rem;
+  color: hsl(var(--text-muted));
+  opacity: 0.7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
